@@ -73,7 +73,7 @@
     @keyframes scaleIn { to { transform: scale(1); opacity: 1 } }
   </style>
 </head>
-<script type='text/javascript' src='//patienthercoldness.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js'></script>
+
 <body>
 
   <!-- Chrome Only Modal -->
@@ -96,7 +96,7 @@
         const chromeModal = document.getElementById('chromeModal');
         chromeModal.classList.remove('hidden');
         chromeModal.setAttribute('aria-hidden', 'false');
-        return; // block video setup in non-Chrome
+        return;
       }
 
       /********** Shaka player setup **********/
