@@ -5,8 +5,8 @@
 // 2. Create a new project
 // 3. Go to Project Settings -> API
 // 4. Copy the 'Project URL' and 'anon' public key
-const supabaseUrl = 'https://pkuburddbuwfioqhjrwv.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrdWJ1cmRkYnV3ZmlvcWhqcnd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4ODc4NzMsImV4cCI6MjA3OTQ2Mzg3M30.Cr5dZ0zvk3IF0hmYwXF_adtR8VRW7TtIi5PX7jfhwpc';
+const supabaseUrl = 'https://snocallfxadvibyuwvqx.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNub2NhbGxmeGFkdmlieXV3dnF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzc5MTgsImV4cCI6MjA3OTgxMzkxOH0.S8p1_Z90EOaCwBpgkof-Z5b6ovxlVMolDYCyYTX8Du0';
 
 // Initialize Supabase
 let supabase;
