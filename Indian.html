@@ -1,0 +1,203 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M3U PLAYLIST</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #0a0f2c, #02030f 70%);
+      color: #e6f1ff;
+      overflow-x: hidden;
+    }/* PARTICLES */
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 70px 20px 40px;
+  animation: slideDown 1.2s ease;
+}
+
+header h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 3.2rem;
+  letter-spacing: 4px;
+  color: #7df9ff;
+  text-shadow: 0 0 25px rgba(125,249,255,0.7);
+}
+
+header p {
+  margin-top: 10px;
+  opacity: 0.85;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: auto;
+  padding: 40px 20px 90px;
+}
+
+.glass {
+  background: linear-gradient(135deg, rgba(125,249,255,0.08), rgba(0,114,255,0.05));
+  border: 1px solid rgba(125,249,255,0.25);
+  backdrop-filter: blur(18px);
+  border-radius: 26px;
+  padding: 30px;
+  margin-bottom: 40px;
+  box-shadow: 0 0 40px rgba(0,198,255,0.25);
+  animation: fadeUp 1.2s ease;
+}
+
+.glass h2 {
+  font-family: 'Orbitron', sans-serif;
+  margin-bottom: 18px;
+  font-size: 1.9rem;
+  color: #7df9ff;
+}
+
+.codebox {
+  background: rgba(0,0,0,0.7);
+  border-radius: 18px;
+  padding: 20px;
+  font-family: monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  word-break: break-all;
+  box-shadow: inset 0 0 25px rgba(0,198,255,0.4);
+  margin-bottom: 18px;
+}
+
+.copy-btn {
+  display: inline-block;
+  padding: 12px 26px;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #00f5ff, #0066ff);
+  color: #fff;
+  transition: 0.3s ease;
+}
+
+.copy-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 30px rgba(0,198,255,0.9);
+}
+
+.steps {
+  line-height: 1.9;
+  font-size: 1.05rem;
+}
+
+.bot {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 14px 28px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  background: linear-gradient(135deg, #7df9ff, #0072ff);
+  color: #000;
+  transition: 0.3s ease;
+}
+
+.bot:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 35px rgba(125,249,255,0.9);
+}
+
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 25px;
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+  </style>
+</head>
+<body><canvas id="particles"></canvas>
+
+<header>
+  <h1>ALL INDIAN CHANNELS</h1>
+  <p>Encrypted Cyber Access Portal</p>
+</header><div class="container">  <div class="glass">
+    <h2>Encoded Code</h2>
+    <div class="codebox" id="codeText">414c4c20494e4449414e20504c41594c49535420425920524b0a0a4f4e4c5920494e4449414e204348414e4e454c5320504c41594c495354200a0a4d33552055524c3a2068747470733a2f2f726b2d6d33752e76657263656c2e6170702f414c4c253230494e4449414e2532304259253230524b2e6d33750a0a56414c49444954592054494c4c203120464542</div>
+    <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+  </div>  <div class="glass">
+    <h2>Instructions</h2>
+    <div class="steps">
+      1. Copy the encoded code shown above.<br>
+      2. Open the decoder bot on Telegram.<br>
+      3. Paste the code into the bot.<br>
+      4. The bot will decode and provide real file and Xtream details.<br>
+      5. Use the decoded output in your IPTV player.
+    </div><a class="bot" href="https://t.me/M3U_DECODER_BOT" target="_blank">Open @M3U_DECODER_BOT</a>
+
+  </div></div><footer>© 2026 M3U PLAYLIST | Ultra‑Premium Cyber Interface</footer><script>
+  function copyCode() {
+    const text = document.getElementById('codeText').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Code copied to clipboard');
+    });
+  }
+
+  /* PARTICLE BACKGROUND */
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let w, h, particles;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  particles = Array.from({ length: 80 }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    vx: (Math.random() - 0.5) * 0.6,
+    vy: (Math.random() - 0.5) * 0.6
+  }));
+
+  function animate() {
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(125,249,255,0.8)';
+
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script></body>
+</html>
