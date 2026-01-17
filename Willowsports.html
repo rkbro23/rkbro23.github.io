@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Willow Live | M3U Playlist</title>
+
+<!-- Shaka Player -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+
+<!-- Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:#0b0f14;
+  --card:#141a22;
+  --accent:#e91e63;
+  --muted:#9aa4b2;
+}
+
+* { box-sizing:border-box; font-family:Inter,sans-serif; }
+
+body {
+  margin:0;
+  background:var(--bg);
+  color:#fff;
+}
+
+/* 🔥 TOP BAR */
+.topbar {
+  display:flex;
+  align-items:center;
+  padding:12px 16px;
+  background:#0e141c;
+  border-bottom:1px solid #1f2937;
+}
+
+.topbar img {
+  height:38px;
+  margin-right:10px;
+}
+
+.channel-name {
+  font-size:18px;
+  font-weight:700;
+}
+
+.live-dot {
+  margin-left:10px;
+  color:red;
+  font-weight:700;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink {
+  50% { opacity:.4; }
+}
+
+/* PLAYER */
+.container {
+  max-width:1100px;
+  margin:auto;
+  padding:16px;
+}
+
+.player-card {
+  background:var(--card);
+  border-radius:16px;
+  padding:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+video {
+  width:100%;
+  border-radius:12px;
+  background:black;
+}
+
+/* FOOTER */
+footer {
+  margin-top:16px;
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 CLEAN HEADER -->
+<header class="topbar">
+  <img src="https://i.ibb.co/r1swQjL/m3u-file-format-icon-m3u-extension-line-icon-free-vector.jpg">
+  <span class="channel-name">M3U Playlist</span>
+  <span class="live-dot">● LIVE</span>
+</header>
+
+<div class="container">
+  <div class="player-card">
+    <video id="video" controls autoplay></video>
+  </div>
+
+  <footer>
+    Created by M3U Playlist
+  </footer>
+</div>
+
+<script>
+/* SHAKA PLAYER – SAME LOGIC */
+async function initPlayer() {
+  if (!shaka.Player.isBrowserSupported()) {
+    alert('Browser not supported');
+    return;
+  }
+
+  const video = document.getElementById('video');
+  const player = new shaka.Player(video);
+
+  player.configure({
+    drm: {
+      clearKeys: {
+        '1779c27b9d077a3ba0c9cc1bb9a94b9f':
+        'cc5cf3b7928fb9e0a1ee6a8b566f0a8e'
+      }
+    }
+  });
+
+  try {
+    await player.load(
+      'https://abm5x5xaaaaaaaamjgudev5k44qb3.otte.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/f60kqesunw/out/v1/a435ed7a00f947deb4369b46d8f2fb70/cenc.mpd'
+    );
+    console.log('Stream loaded');
+  } catch (e) {
+    console.error('Stream error', e);
+  }
+}
+
+initPlayer();
+</script>
+
+</body>
+</html>
