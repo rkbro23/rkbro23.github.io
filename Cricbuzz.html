@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CricLife 2 | Premium Live Stream</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.6/shaka-player.ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.6/controls.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- 1. CORE VARIABLES & RESET --- */
+        :root {
+            --bg-deep: #050507;
+            --bg-surface: #121216;
+            --accent-primary: #3b82f6; /* Premium Blue */
+            --accent-glow: #60a5fa;
+            --telegram-color: #229ED9;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --glass: rgba(20, 20, 25, 0.7);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            /* Subtle animated background mesh */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+        }
+
+        /* --- 2. HEADER UI --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            background: linear-gradient(to bottom, rgba(5,5,7,0.9), transparent);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .brand-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: -0.5px;
+        }
+        
+        .live-badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        /* --- 3. VIDEO PLAYER STAGE --- */
+        .stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 100px 20px 40px;
+            position: relative;
+        }
+
+        /* The Ambient Glow behind the player */
+        .player-glow {
+            position: absolute;
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 16/9;
+            background: linear-gradient(180deg, var(--accent-primary), #8b5cf6);
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: 1;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            z-index: 10;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            border: var(--glass-border);
+        }
+
+        /* Loading Spinner */
+        .loader-overlay {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            transition: opacity 0.5s ease;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* --- 4. POPUP MODAL (GOD LEVEL) --- */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-card {
+            background: rgba(23, 23, 28, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 420px;
+            padding: 32px;
+            border-radius: 24px;
+            text-align: center;
+            transform: translateY(20px) scale(0.95);
+            transition: var(--transition);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle shine effect on modal */
+        .modal-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            transform: skewX(-15deg);
+            transition: 0.5s;
+        }
+
+        .modal-backdrop.active .modal-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(34, 158, 217, 0.1);
+            color: var(--telegram-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 24px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 28px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--telegram-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(34, 158, 217, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 158, 217, 0.4);
+        }
+        
+        /* Pulse Animation specifically for the Join button */
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            background: inherit;
+            border-radius: inherit;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+            z-index: -1;
+            animation: pulse-ring 2s infinite;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+        /* --- 5. FOOTER UI --- */
+        footer {
+            padding: 24px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            background: rgba(5,5,7,0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+
+        .creator-tag {
+            color: var(--text-secondary);
+        }
+
+        .creator-tag span {
+            color: white;
+            font-weight: 600;
+        }
+
+        .footer-channel-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--telegram-color);
+            text-decoration: none;
+            background: rgba(34, 158, 217, 0.1);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .footer-channel-link:hover {
+            background: rgba(34, 158, 217, 0.2);
+            transform: scale(1.02);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes blink { 50% { opacity: 0.4; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse-ring {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+        
+        /* Mobile Tweaks */
+        @media (max-width: 768px) {
+            .stage { padding: 80px 15px 30px; }
+            .modal-card { width: 85%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="brand">
+            <div class="brand-logo">P</div>
+            <div class="brand-text">PREMIUM <span style="font-weight:300; opacity:0.7">STREAM</span></div>
+        </div>
+        <div class="live-badge">
+            <div class="live-dot"></div>
+            LIVE
+        </div>
+    </nav>
+
+    <div class="stage">
+        <div class="player-glow"></div>
+        
+        <div class="player-wrapper">
+            <div class="loader-overlay" id="loader">
+                <div class="spinner"></div>
+            </div>
+            
+            <div data-shaka-player-container style="width:100%; height:100%;">
+                <video autoplay data-shaka-player id="video" style="width:100%; height:100%;"></video>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <h1 style="font-size: 1.5rem; margin-bottom: 5px;">CricBuzz 1</h1>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">High Definition • Low Latency • Secure Stream</p>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="popup">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.0002 4.00014L3.00015 11.0001L10.5002 13.5001L13.0001 21.0001L21.0002 4.00014Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2 class="modal-title">Join Premium Channel</h2>
+            <p class="modal-desc">Get access to exclusive M3U playlists, 4K streams, and daily updates. Don't miss out!</p>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="joinChannel()">Join Telegram Channel</button>
+                <button class="btn btn-secondary" onclick="closePopup()">Continue Watching</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <a href="https://t.me/iptvm3y" target="_blank" class="footer-channel-link">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629.093.06.183.125.27.187.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.426 1.426 0 0 0-.013-.315.337.337 0 0 0-.114-.217.526.526 0 0 0-.31-.093c-.3.005-.763.213-2.936 1.072z"/>
+            </svg>
+            M3U PLAYLIST
+        </a>
+        <div class="creator-tag">UI Created by <span>RK</span></div>
+    </footer>
+
+    <script>
+        // --- CONFIGURATION ---
+        const MANIFEST_URI = 'https://ev-fast-mpd.starzplayarabia.com/live/eds/CricLife2/DASH/CricLife2.mpd';
+        const KEY_ID = '48bef83b4c6a3c5189b01b0126210da4';
+        const KEY = 'bd085230b7b09e50954fe0af111a8a9f';
+        const TELEGRAM_URL = 'https://t.me/iptvm3y';
+        
+        // --- PLAYER INIT ---
+        async function init() {
+            const video = document.getElementById('video');
+            const ui = video['ui'];
+            const controls = ui.getControls();
+            const player = controls.getPlayer();
+            const loader = document.getElementById('loader');
+
+            // Configure DRM
+            player.configure({
+                drm: {
+                    servers: { 'org.w3.clearkey': 'https://m.dtv.fi/dash/clearkey' },
+                    clearKeys: { [KEY_ID]: KEY }
+                }
+            });
+
+            // Error Handling
+            player.addEventListener('error', (event) => {
+                console.error('Error code', event.detail.code, 'object', event.detail);
+            });
+
+            // Remove Loader on Success
+            video.addEventListener('playing', () => {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
+            });
+
+            try {
+                await player.load(MANIFEST_URI);
+                console.log('Stream Loaded Successfully');
+            } catch (error) {
+                console.error('Error loading manifest', error);
+            }
+        }
+
+        // --- POPUP LOGIC ---
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('popup').classList.add('active');
+            }, 5000); // 5 Seconds exact
+        });
+
+        function joinChannel() {
+            window.open(TELEGRAM_URL, '_blank');
+            closePopup();
+        }
+
+        function closePopup() {
+            document.getElementById('popup').classList.remove('active');
+        }
+
+        // --- SHAKA LISTENERS ---
+        document.addEventListener('shaka-ui-loaded', init);
+        document.addEventListener('shaka-ui-load-failed', () => console.error('UI Failed'));
+    </script>
+</body>
+  </html>
+  
