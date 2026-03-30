@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STAR SPORTS 1 HD | RK</title>
+    <title>⭐ STAR SPORTS 1 HD | Premium Stream</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
     
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js" crossorigin="anonymous"></script>
-
     <style>
         /* =========================================
            GLOBAL VARIABLES & RESET
@@ -52,12 +50,6 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px var(--neon-cyan); }
-            50% { box-shadow: 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-blue); }
-            100% { box-shadow: 0 0 5px var(--neon-cyan); }
-        }
-
         @keyframes livePulse {
             0% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.6; transform: scale(1.05); box-shadow: 0 0 15px var(--danger); }
@@ -68,11 +60,6 @@
             0% { transform: rotate(0deg); border-top-color: var(--neon-cyan); }
             50% { transform: rotate(180deg); border-top-color: var(--neon-blue); }
             100% { transform: rotate(360deg); border-top-color: var(--neon-cyan); }
-        }
-
-        @keyframes scaleIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
         }
 
         /* =========================================
@@ -141,14 +128,15 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-            pointer-events: none; /* Prevents users from clicking on the video to pause */
         }
 
+        /* Native Video Styling */
         video {
             width: 100%;
             height: 100%;
             object-fit: contain;
             display: block;
+            outline: none;
         }
 
         /* Loading Screen */
@@ -210,11 +198,14 @@
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
         }
 
+        /* Updated Buttons Container for Stacking */
         .buttons-container {
             display: flex;
+            flex-direction: column; /* This stacks the buttons vertically */
             justify-content: center;
             align-items: center;
             margin-top: 10px;
+            gap: 15px; /* Adds space between the buttons */
         }
 
         .action-btn {
@@ -232,7 +223,14 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
             width: 100%;
-            max-width: 400px; /* Limits the button width so it doesn't stretch too far */
+            max-width: 400px;
+        }
+
+        .action-btn.owner:hover {
+            border-color: #a855f7;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+            color: #d8b4fe;
+            transform: translateY(-2px);
         }
 
         .action-btn.telegram:hover {
@@ -376,7 +374,7 @@
                     <div class="loading-text">CONNECTING TO SERVER...</div>
                 </div>
 
-                <video id="hlsVideo" autoplay muted playsinline preload="auto"></video>
+                <video id="hlsVideo" src="https://starsports-rk.onrender.com/index.php" autoplay muted playsinline controls preload="auto"></video>
             </div>
         </div>
 
@@ -388,6 +386,10 @@
             </div>
 
             <div class="buttons-container">
+                <a href="https://t.me/nubcarder" target="_blank" class="action-btn owner">
+                    <i class="fas fa-user-shield"></i> Contact Owner
+                </a>
+                
                 <a href="https://t.me/iptvm3y" target="_blank" class="action-btn telegram">
                     <i class="fab fa-telegram-plane"></i> Join Updates Channel
                 </a>
@@ -413,119 +415,46 @@
         </div>
     </div>
 
-    <script crossorigin="anonymous">
-        // STRICT WRAPPER: Ensure DOM is 100% fully loaded before executing any JS
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             
             // --- DOM Elements ---
             const video = document.getElementById('hlsVideo');
             const loadingScreen = document.getElementById('loadingScreen');
-            
-            // Modal Elements
             const modal = document.getElementById('telegramModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
 
-            // Source URL
-            const streamSrc = 'https://starsports-rk.onrender.com/index.php';
+            // --- Native Video Loading Events ---
+            video.addEventListener('loadeddata', () => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => loadingScreen.style.display = 'none', 400);
+            });
 
-            // --- HLS.JS Initialization (Stable Config) ---
-            function initPlayer() {
-                try {
-                    if (Hls.isSupported()) {
-                        const hls = new Hls({
-                            enableWorker: true,
-                            maxBufferLength: 30,         
-                            maxMaxBufferLength: 600,     
-                            liveSyncDurationCount: 6,    
-                            liveMaxLatencyDurationCount: 15,
-                            manifestLoadingTimeOut: 20000, 
-                            manifestLoadingMaxRetry: 5,
-                            levelLoadingTimeOut: 20000,
-                            fragLoadingTimeOut: 20000,
-                            startLevel: -1 
-                        });
-
-                        hls.loadSource(streamSrc);
-                        hls.attachMedia(video);
-
-                        hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                            loadingScreen.style.opacity = '0';
-                            setTimeout(() => loadingScreen.style.display = 'none', 400);
-                            
-                            // Force auto-play once manifest is parsed
-                            video.play().catch(function(error) {
-                                console.warn("Autoplay was prevented:", error);
-                            });
-                        });
-
-                        // Error handling & Auto-Recovery
-                        hls.on(Hls.Events.ERROR, function (event, data) {
-                            if (data.fatal) {
-                                switch (data.type) {
-                                    case Hls.ErrorTypes.NETWORK_ERROR:
-                                        console.warn("Network error, trying to recover...");
-                                        loadingScreen.style.display = 'flex';
-                                        loadingScreen.style.opacity = '1';
-                                        hls.startLoad();
-                                        break;
-                                    case Hls.ErrorTypes.MEDIA_ERROR:
-                                        console.warn("Media error, recovering...");
-                                        hls.recoverMediaError();
-                                        break;
-                                    default:
-                                        console.error("Unrecoverable error. Destroying player.");
-                                        hls.destroy();
-                                        loadingScreen.querySelector('.loading-text').innerText = "STREAM FAILED. PLEASE REFRESH.";
-                                        break;
-                                }
-                            }
-                        });
-                    } 
-                    // Fallback for Safari (Native HLS)
-                    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                        video.src = streamSrc;
-                        video.addEventListener('loadedmetadata', () => {
-                            loadingScreen.style.opacity = '0';
-                            setTimeout(() => loadingScreen.style.display = 'none', 400);
-                            
-                            // Auto-play for Safari fallback
-                            video.play().catch(function(error) {
-                                console.warn("Autoplay was prevented:", error);
-                            });
-                        });
-                    } else {
-                        loadingScreen.querySelector('.loading-text').innerText = "BROWSER NOT SUPPORTED";
-                    }
-                } catch (error) {
-                    console.error("Player initialization failed:", error);
-                }
-            }
-
-            // Initialize the player
-            initPlayer();
-
-            // --- Buffer Events for Loading Screen ---
             video.addEventListener('waiting', () => {
                 loadingScreen.style.display = 'flex';
                 loadingScreen.style.opacity = '1';
             });
+
             video.addEventListener('playing', () => {
                 loadingScreen.style.opacity = '0';
                 setTimeout(() => loadingScreen.style.display = 'none', 400);
             });
 
-            // --- Modal Logic ---
-            // Trigger exactly 10 seconds after DOM load
+            video.addEventListener('error', () => {
+                loadingScreen.style.display = 'flex';
+                loadingScreen.style.opacity = '1';
+                loadingScreen.querySelector('.loading-text').innerText = "STREAM FAILED. PLEASE REFRESH.";
+            });
+
+            // --- Telegram Modal Logic ---
             setTimeout(() => {
                 modal.classList.add('active');
             }, 10000);
 
-            // Close Modal
             closeModalBtn.addEventListener('click', () => {
                 modal.classList.remove('active');
             });
 
-            // Close if clicked outside the box
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     modal.classList.remove('active');
@@ -535,5 +464,4 @@
         });
     </script>
 </body>
-  </html>
-  
+</html>
