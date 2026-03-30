@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STAR SPORTS 1 HD | RK</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js" crossorigin="anonymous"></script>
+
+    <style>
+        /* =========================================
+           GLOBAL VARIABLES & RESET
+           ========================================= */
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-blue: #0077ff;
+            --dark-bg: #050914;
+            --glass-bg: rgba(10, 18, 35, 0.65);
+            --glass-border: rgba(0, 243, 255, 0.15);
+            --text-light: #e0f2fe;
+            --danger: #ff2a5f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 10%, #0a1526, var(--dark-bg));
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* =========================================
+           ANIMATIONS
+           ========================================= */
+        @keyframes fadeInSlideUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px var(--neon-cyan); }
+            50% { box-shadow: 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-blue); }
+            100% { box-shadow: 0 0 5px var(--neon-cyan); }
+        }
+
+        @keyframes livePulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); box-shadow: 0 0 15px var(--danger); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes spinNeon {
+            0% { transform: rotate(0deg); border-top-color: var(--neon-cyan); }
+            50% { transform: rotate(180deg); border-top-color: var(--neon-blue); }
+            100% { transform: rotate(360deg); border-top-color: var(--neon-cyan); }
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* =========================================
+           MAIN LAYOUT
+           ========================================= */
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            animation: fadeInSlideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .channel-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 4px 15px rgba(0, 243, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-badge {
+            background-color: var(--danger);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            animation: livePulse 2s infinite;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* =========================================
+           VIDEO PLAYER UI (Glassmorphism)
+           ========================================= */
+        .player-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            pointer-events: none; /* Prevents users from clicking on the video to pause */
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 9, 20, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 0.4s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 243, 255, 0.1);
+            border-top: 4px solid var(--neon-cyan);
+            border-radius: 50%;
+            animation: spinNeon 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        .loading-text {
+            color: var(--neon-cyan);
+            font-weight: 600;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+        }
+
+        /* =========================================
+           FOOTER SECTION
+           ========================================= */
+        .footer-section {
+            margin-top: 30px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ads-banner {
+            background: linear-gradient(135deg, rgba(0, 119, 255, 0.1), rgba(0, 243, 255, 0.05));
+            border: 1px dashed var(--neon-cyan);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: #a0aec0;
+            transition: all 0.3s;
+        }
+
+        .ads-banner:hover {
+            background: linear-gradient(135deg, rgba(0, 119, 255, 0.15), rgba(0, 243, 255, 0.1));
+            border-style: solid;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 15px 30px;
+            border-radius: 12px;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            width: 100%;
+            max-width: 400px; /* Limits the button width so it doesn't stretch too far */
+        }
+
+        .action-btn.telegram:hover {
+            border-color: #0088cc;
+            box-shadow: 0 0 15px rgba(0, 136, 204, 0.4);
+            color: #7dd3fc;
+            transform: translateY(-2px);
+        }
+
+        .disclaimer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #475569;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            line-height: 1.5;
+        }
+
+        /* =========================================
+           TELEGRAM POPUP MODAL
+           ========================================= */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: linear-gradient(180deg, #111827, #030712);
+            border: 1px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 119, 255, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-icon {
+            font-size: 3.5rem;
+            color: #0088cc;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(0, 136, 204, 0.5));
+        }
+
+        .modal-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .modal-subtitle {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+
+        .modal-btn {
+            background: linear-gradient(90deg, #0088cc, #00aeff);
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 136, 204, 0.3);
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(0, 136, 204, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .channel-title { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="channel-title">
+                <i class="fas fa-star" style="color: #fbbf24;"></i> STAR SPORTS 1 HD
+            </div>
+            <div class="live-badge">
+                <i class="fas fa-circle"></i> LIVE
+            </div>
+        </div>
+
+        <div class="player-card">
+            <div class="video-wrapper" id="videoContainer">
+                <div class="loading-screen" id="loadingScreen">
+                    <div class="spinner"></div>
+                    <div class="loading-text">CONNECTING TO SERVER...</div>
+                </div>
+
+                <video id="hlsVideo" autoplay muted playsinline preload="auto"></video>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <div class="ads-banner">
+                <i class="fas fa-bullhorn" style="color: var(--neon-cyan); margin-right: 8px;"></i>
+                <strong>Want to place your ads here?</strong> Best rates guaranteed.<br>
+                <span style="font-size: 0.85rem; margin-top: 5px; display: inline-block;">Contact Owner on Telegram</span>
+            </div>
+
+            <div class="buttons-container">
+                <a href="https://t.me/iptvm3y" target="_blank" class="action-btn telegram">
+                    <i class="fab fa-telegram-plane"></i> Join Updates Channel
+                </a>
+            </div>
+
+            <div class="disclaimer">
+                Disclaimer: This website acts solely as a media indexing engine. We do not host, upload, or manage any of the broadcasting content displayed here. All streams are scraped from publicly available third-party domains on the internet. All trademarks and copyrights belong to their respective owners.
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="telegramModal">
+        <div class="modal-box">
+            <button class="close-modal" id="closeModalBtn"><i class="fas fa-times"></i></button>
+            <i class="fab fa-telegram modal-icon"></i>
+            <div class="modal-title">JOIN PREMIUM</div>
+            <div class="modal-subtitle">Get backup links and instant match updates.</div>
+            <a href="https://t.me/iptvm3y" target="_blank" style="text-decoration: none;">
+                <button class="modal-btn">
+                    <i class="fab fa-telegram-plane"></i> Join Telegram Channel
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <script crossorigin="anonymous">
+        // STRICT WRAPPER: Ensure DOM is 100% fully loaded before executing any JS
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- DOM Elements ---
+            const video = document.getElementById('hlsVideo');
+            const loadingScreen = document.getElementById('loadingScreen');
+            
+            // Modal Elements
+            const modal = document.getElementById('telegramModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+
+            // Source URL
+            const streamSrc = 'https://starsports-rk.onrender.com/index.php';
+
+            // --- HLS.JS Initialization (Stable Config) ---
+            function initPlayer() {
+                try {
+                    if (Hls.isSupported()) {
+                        const hls = new Hls({
+                            enableWorker: true,
+                            maxBufferLength: 30,         
+                            maxMaxBufferLength: 600,     
+                            liveSyncDurationCount: 6,    
+                            liveMaxLatencyDurationCount: 15,
+                            manifestLoadingTimeOut: 20000, 
+                            manifestLoadingMaxRetry: 5,
+                            levelLoadingTimeOut: 20000,
+                            fragLoadingTimeOut: 20000,
+                            startLevel: -1 
+                        });
+
+                        hls.loadSource(streamSrc);
+                        hls.attachMedia(video);
+
+                        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                            loadingScreen.style.opacity = '0';
+                            setTimeout(() => loadingScreen.style.display = 'none', 400);
+                            
+                            // Force auto-play once manifest is parsed
+                            video.play().catch(function(error) {
+                                console.warn("Autoplay was prevented:", error);
+                            });
+                        });
+
+                        // Error handling & Auto-Recovery
+                        hls.on(Hls.Events.ERROR, function (event, data) {
+                            if (data.fatal) {
+                                switch (data.type) {
+                                    case Hls.ErrorTypes.NETWORK_ERROR:
+                                        console.warn("Network error, trying to recover...");
+                                        loadingScreen.style.display = 'flex';
+                                        loadingScreen.style.opacity = '1';
+                                        hls.startLoad();
+                                        break;
+                                    case Hls.ErrorTypes.MEDIA_ERROR:
+                                        console.warn("Media error, recovering...");
+                                        hls.recoverMediaError();
+                                        break;
+                                    default:
+                                        console.error("Unrecoverable error. Destroying player.");
+                                        hls.destroy();
+                                        loadingScreen.querySelector('.loading-text').innerText = "STREAM FAILED. PLEASE REFRESH.";
+                                        break;
+                                }
+                            }
+                        });
+                    } 
+                    // Fallback for Safari (Native HLS)
+                    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                        video.src = streamSrc;
+                        video.addEventListener('loadedmetadata', () => {
+                            loadingScreen.style.opacity = '0';
+                            setTimeout(() => loadingScreen.style.display = 'none', 400);
+                            
+                            // Auto-play for Safari fallback
+                            video.play().catch(function(error) {
+                                console.warn("Autoplay was prevented:", error);
+                            });
+                        });
+                    } else {
+                        loadingScreen.querySelector('.loading-text').innerText = "BROWSER NOT SUPPORTED";
+                    }
+                } catch (error) {
+                    console.error("Player initialization failed:", error);
+                }
+            }
+
+            // Initialize the player
+            initPlayer();
+
+            // --- Buffer Events for Loading Screen ---
+            video.addEventListener('waiting', () => {
+                loadingScreen.style.display = 'flex';
+                loadingScreen.style.opacity = '1';
+            });
+            video.addEventListener('playing', () => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => loadingScreen.style.display = 'none', 400);
+            });
+
+            // --- Modal Logic ---
+            // Trigger exactly 10 seconds after DOM load
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10000);
+
+            // Close Modal
+            closeModalBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+
+            // Close if clicked outside the box
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+
+        });
+    </script>
+</body>
+  </html>
+  
